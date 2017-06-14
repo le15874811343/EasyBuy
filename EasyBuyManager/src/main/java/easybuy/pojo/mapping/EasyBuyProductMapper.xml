@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="easybuy.pojo.mapping.EasyBuyProductMapper" >
+  <resultMap id="BaseResultMap" type="easybuy.pojo.EasyBuyProduct" >
+    <id column="EP_ID" property="epId" jdbcType="DECIMAL" />
+    <result column="EP_NAME" property="epName" jdbcType="VARCHAR" />
+    <result column="EP_DESCRIPTION" property="epDescription" jdbcType="VARCHAR" />
+    <result column="EP_PRICE" property="epPrice" jdbcType="DECIMAL" />
+    <result column="EP_STOCK" property="epStock" jdbcType="DECIMAL" />
+    <result column="EPC_ID" property="epcId" jdbcType="DECIMAL" />
+    <result column="EPC_CHILD_ID" property="epcChildId" jdbcType="DECIMAL" />
+    <result column="EP_FILE_NAME" property="epFileName" jdbcType="VARCHAR" />
+    <result column="EP_REBATE" property="epRebate" jdbcType="DECIMAL" />
+    <result column="EP_SALECOUNT" property="saleCount" jdbcType="DECIMAL" />
+  </resultMap>
+  <!-- 列 -->
+  <sql id="Base_Column_List" >
+    EP_ID, EP_NAME, EP_DESCRIPTION, EP_PRICE*EP_REBATE AS EP_PRICE, EP_STOCK, EPC_ID, EPC_CHILD_ID, EP_FILE_NAME, EP_REBATE
+  </sql>
+ <!-- 查询模块start -->
+ 
+  <!-- 根据商品编号查询(主键) -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT
+    from
+        EASYBUYPRODUCT
+    where EP_ID = #{epId,jdbcType=DECIMAL}
+  </select>
+  
+  <!-- 根据折扣率升序获取商品集合 @param maxRowsNumber 获取最大记录数 -->
+  <select id="listByRebate" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+   select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT,
+        rownum
+   from
+     (
+     select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        cast(EP_PRICE*EP_REBATE as decimal(10,   2) ) AS EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT
+    from
+        EASYBUYPRODUCT
+    order by
+        EP_REBATE
+        )
+    where
+        rownum   &lt; #{maxRowsNumber,jdbcType=DECIMAL}
+  </select>
+  
+  <!-- 根据销售额降序获取商品集合 @param maxRowsNumber 获取最大记录数 -->
+  <select id="listBySaleCount" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+   select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT,
+        rownum
+   from
+     (
+     select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        cast(EP_PRICE*EP_REBATE as decimal(10,   2) ) AS EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT
+    from
+        EASYBUYPRODUCT
+    order by
+        EP_SALECOUNT DESC
+        )
+    where
+        rownum   &lt; #{maxRowsNumber,jdbcType=DECIMAL}
+  </select>
+  
+  <!-- 根据商品二级分类获取商品详情 -->
+  <select id="listByChildId" resultMap="BaseResultMap" parameterType="Map">
+   select 
+    EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT,
+        rn
+ from
+ (select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT,
+        rownum rn
+   from
+     (
+     select 
+        EP_ID,
+        EP_NAME,
+        EP_DESCRIPTION,
+        cast(EP_PRICE*EP_REBATE as decimal(10,   2) ) AS EP_PRICE,
+        EP_STOCK,
+        EPC_ID,
+        EPC_CHILD_ID,
+        EP_FILE_NAME,
+        EP_REBATE,
+        EP_SALECOUNT
+    from
+        EASYBUYPRODUCT
+     where 1=1 
+    <if test="epcChildId != null" >
+        and EPC_CHILD_ID = #{epcChildId,jdbcType = DECIMAL}
+    </if>
+    <if test="epcId != null" >
+        and EPC_ID = #{epcId,jdbcType = DECIMAL}
+    </if>
+    <if test="epRebate != null" >
+        and EP_REBATE &lt;= #{epRebate,jdbcType = DECIMAL}
+    </if>
+        )
+    where
+        rownum   &lt; #{maxNum,jdbcType=DECIMAL}
+  )
+  where rn &gt; #{minNum,jdbcType=DECIMAL}
+  </select>
+  <select id="countByChildId" resultType="java.lang.Long" parameterType="Map">
+  select 
+       count(1)
+   from 
+       EASYBUYPRODUCT
+    where 1=1
+   <if test="epcChildId != null" >
+       and EPC_CHILD_ID = #{epcChildId,jdbcType = DECIMAL}
+    </if>
+    <if test="epcId != null" >
+       and EPC_ID = #{epcId,jdbcType = DECIMAL}
+    </if>
+     <if test="epRebate != null" >
+        and EP_REBATE &lt;= #{epRebate,jdbcType = DECIMAL}
+    </if>
+  </select>
+  <!-- 查询模块end -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete 
+    from 
+          EASYBUYPRODUCT
+    where 
+          EP_ID = #{epId,jdbcType=DECIMAL}
+  </delete>
+  <insert id="insert" parameterType="easybuy.pojo.EasyBuyProduct" >
+    insert 
+    into 
+          EASYBUYPRODUCT 
+          (
+            EP_ID, EP_NAME,
+            EP_DESCRIPTION, 
+            EP_PRICE,
+            EP_STOCK, EPC_ID, 
+            EPC_CHILD_ID, 
+            EP_FILE_NAME,
+            EP_REBATE
+           )
+    values 
+          (
+          #{epId,jdbcType=DECIMAL}, 
+          #{epName,jdbcType=VARCHAR},
+          #{epDescription,jdbcType=VARCHAR}, 
+          #{epPrice,jdbcType=DECIMAL},
+          #{epStock,jdbcType=DECIMAL},
+          #{epcId,jdbcType=DECIMAL}, 
+          #{epcChildId,jdbcType=DECIMAL},
+          #{epFileName,jdbcType=VARCHAR}
+          #{epRebate,jdbcType=DECIMAL}
+          )
+  </insert>
+  <insert id="insertSelective" parameterType="easybuy.pojo.EasyBuyProduct" >
+    insert into EASYBUYPRODUCT
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+     
+        EP_ID,
+      
+      <if test="epName != null" >
+        EP_NAME,
+      </if>
+      <if test="epDescription != null" >
+        EP_DESCRIPTION,
+      </if>
+      <if test="epPrice != null" >
+        EP_PRICE,
+      </if>
+      <if test="epStock != null" >
+        EP_STOCK,
+      </if>
+      <if test="epcId != null" >
+        EPC_ID,
+      </if>
+      <if test="epcChildId != null" >
+        EPC_CHILD_ID,
+      </if>
+      <if test="epFileName != null" >
+        EP_FILE_NAME,
+      </if>
+      <if test="epRebate != null" >
+        EP_REBATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+     seq_product.nextval,
+      <if test="epName != null" >
+        #{epName,jdbcType=VARCHAR},
+      </if>
+      <if test="epDescription != null" >
+        #{epDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="epPrice != null" >
+        #{epPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="epStock != null" >
+        #{epStock,jdbcType=DECIMAL},
+      </if>
+      <if test="epcId != null" >
+        #{epcId,jdbcType=DECIMAL},
+      </if>
+      <if test="epcChildId != null" >
+        #{epcChildId,jdbcType=DECIMAL},
+      </if>
+      <if test="epFileName != null" >
+        #{epFileName,jdbcType=VARCHAR},
+      </if>
+       <if test="epRebate != null" >
+        #{epRebate,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="easybuy.pojo.EasyBuyProduct" >
+    update EASYBUYPRODUCT
+    <set >
+      <if test="epName != null" >
+        EP_NAME = #{epName,jdbcType=VARCHAR},
+      </if>
+      <if test="epDescription != null" >
+        EP_DESCRIPTION = #{epDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="epPrice != null" >
+        EP_PRICE = #{epPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="epStock != null" >
+        EP_STOCK = #{epStock,jdbcType=DECIMAL},
+      </if>
+      <if test="epcId != null" >
+        EPC_ID = #{epcId,jdbcType=DECIMAL},
+      </if>
+      <if test="epcChildId != null" >
+        EPC_CHILD_ID = #{epcChildId,jdbcType=DECIMAL},
+      </if>
+      <if test="epFileName != null" >
+        EP_FILE_NAME = #{epFileName,jdbcType=VARCHAR},
+      </if>
+      <if test="epRebate != null" >
+        EP_REBATE = #{epRebate,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where EP_ID = #{epId,jdbcType=DECIMAL}
+  </update>
+  <update id="stock" parameterType="easybuy.pojo.EasyBuyProduct">
+     update EASYBUYPRODUCT
+     set   EP_STOCK = #{epStock,jdbcType=DECIMAL}
+      where EP_ID = #{epId,jdbcType=DECIMAL}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="easybuy.pojo.EasyBuyProduct" >
+    update EASYBUYPRODUCT
+    set EP_NAME = #{epName,jdbcType=VARCHAR},
+      EP_DESCRIPTION = #{epDescription,jdbcType=VARCHAR},
+      EP_PRICE = #{epPrice,jdbcType=DECIMAL},
+      EP_STOCK = #{epStock,jdbcType=DECIMAL},
+      EPC_ID = #{epcId,jdbcType=DECIMAL},
+      EPC_CHILD_ID = #{epcChildId,jdbcType=DECIMAL},
+      EP_FILE_NAME = #{epFileName,jdbcType=VARCHAR},
+      EP_REBATE =  #{epRebate,jdbcType=DECIMAL}
+    where EP_ID = #{epId,jdbcType=DECIMAL}
+  </update>
+</mapper>

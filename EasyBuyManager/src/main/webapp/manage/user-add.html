@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>后台管理 - 易买网</title>
+ <script type="text/javascript" src="/EasyBuyManager/js/jquery.min.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/common.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/layer/layer.js"></script>
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/layer.css" />
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/style.css" />
+ <script type="text/javascript" src="/EasyBuyManager/scripts/function.js"></script>
+</head>
+<body>
+	<div id="header" class="wrap">
+		<div id="logo">
+			<img src="../images/logo.gif" />
+		</div>
+	
+		<div class="navbar">
+			<ul class="clearfix">
+				<li><a href="index.html">首页</a></li>
+				<li class="current"><a href="user.html">用户</a></li>
+				<li><a href="product.html">商品</a></li>
+				<li><a href="order.html">订单</a></li>
+				<li><a href="guestbook.html">留言</a></li>
+				<li><a href="news.html">新闻</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="childNav">
+		<div class="welcome wrap" id="welcome"></div>
+	</div>
+	<div id="position" class="wrap">
+		您现在的位置：<a href="index.html">易买网</a> &gt; 管理后台
+	</div>
+	<div id="main" class="wrap">
+		<div id="menu-mng" class="lefter">
+			<div class="box">
+				<dl>
+					<dt>用户管理</dt>
+					<dd>
+						<em><a href="user-add.html">新增</a> </em><a href="user.html">用户管理</a>
+					</dd>
+					<dt>商品信息</dt>
+					<dd>
+						<em><a href="productClass-add.html">新增</a> </em><a
+							href="productClass.html">分类管理</a>
+					</dd>
+					<dd>
+						<em><a href="product-add.html">新增</a> </em><a href="product.html">商品管理</a>
+					</dd>
+					<dt>订单管理</dt>
+					<dd>
+						<a href="order.html">订单管理</a>
+					</dd>
+					<dt>留言管理</dt>
+					<dd>
+						<a href="guestbook.html">留言管理</a>
+					</dd>
+					<dt>新闻管理</dt>
+					<dd>
+						<em><a href="news-add.html">新增</a> </em><a href="news.html">新闻管理</a>
+					</dd>
+				</dl>
+			</div>
+		</div>
+		<div class="main">
+			<h2>新增用户</h2>
+			<div class="manage">
+				<form action="manage-result.html">
+					<table class="form">
+						<tr>
+							<td class="field">用户名：</td>
+							<td><input type="text" id="userName" class="text"
+								name="userName" value="" /></td>
+						</tr>
+						<tr>
+							<td class="field">密码：</td>
+							<td><input type="text" class="text" id="passWord"
+								name="passWord" value="" /></td>
+						</tr>
+						<tr>
+							<td class="field">性别：</td>
+							<td><input type="radio" name="sex" value="男" id="sex"
+								checked="checked" />男 <input type="radio" id="sex" name="sex"
+								value="女" />女</td>
+						</tr>
+						<tr>
+							<td class="field">权限：</td>
+							<td><input type="radio" name="admin" value="0" id="admin"
+								checked="checked" />普通用户 <input type="radio" id="admin" name="admin"
+								value="1" />管理员</td>
+						</tr>
+						<tr>
+							<td class="field">手机号码：</td>
+							<td><input type="text" class="text" id="mobile"
+								name="mobile" value="" /></td>
+						</tr>
+						<tr>
+							<td class="field">送货地址：</td>
+							<td><input type="text" class="text" id="addr" name="address"
+								value="" /></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><label class="ui-blue"><input type="button"
+									name="button" value="添加" onclick="formSubmit()" /> </label></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div id="footer">Copyright &copy; 2010 北大青鸟 All Rights Reserved.
+		京ICP证1000001号</div>
+	<script>
+	 loadCommon();
+		function formSubmit() {
+			var userName = $("#userName"),
+			    password = $("#passWord"), 
+			    sex = $("#sex:checked"), 
+			    mobile = $("#mobile"), 
+			    addr = $("#addr"), 
+			    admin = $("#admin:checked"),
+			    userNameVal = $.trim(userName.val()),
+			    passwordVal = $.trim(password.val()), 
+			    sexVal = $.trim(sex.val()), 
+			    mobileVal = $.trim(mobile.val()), 
+			    adminVal = $.trim(admin.val()),
+			    addrVal = $.trim(addr.val());
+
+			if (!userNameVal) {
+				layer.tips("用户名不能为空！", userName);
+				userName.focus();
+				return false;
+			}
+			if (!passwordVal) {
+				layer.tips("密码不能为空！", password);
+				password.focus();
+				return false;
+			}
+			$.ajax({
+				type : "post",
+				url : "/EasyBuyManager/user/regmatch",
+				data : {
+					userName : userNameVal,
+					password : passwordVal,
+				},
+				success : function(result) {
+					if (result == "2") {
+						layer.tips("用户已存在！", userName);
+						userName.focus();
+						return false;
+					} else if (result == "1") {
+						$.ajax({
+							type : "post",
+							url : "/EasyBuyManager/user/reg",
+							data : {
+								userName : userNameVal,
+								password : passwordVal,
+								sex : sexVal,
+								mobile : mobileVal,
+								addr : addrVal,
+								admin : adminVal,
+							},
+							success : function(result) {
+                                 if(result == "1"){
+                                 layer.alert("添加成功");
+                                 userName.val("");
+                                 password.val("");
+                                 mobile.val("")
+                                 addr.val("");
+                                 $("#admin")[0].checked=true;
+                                 $("#sex")[0].checked=true;
+                                 } else {
+                                  layer.alert("数据填写有空白字符串或其他错误，添加失败！")
+                                 }
+							},
+							error : function(result) {
+								layer.alert("数据读取失败,请刷新重试！");
+							}
+						});
+					}
+				},
+				error : function(result) {
+					layer.alert("数据读取失败,请刷新重试！");
+				}
+			});
+		}
+	</script>
+</body>
+</html>

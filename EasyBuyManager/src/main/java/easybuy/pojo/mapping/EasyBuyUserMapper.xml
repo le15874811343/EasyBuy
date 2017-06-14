@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.com.pojo.mapping.EasyBuyUserMapper" >
+  <resultMap id="BaseResultMap" type="easybuy.pojo.EasyBuyUser" >
+    <result column="EU_USER_ID" property="euUserId" jdbcType="VARCHAR" />
+    <result column="EU_USER_NAME" property="euUserName" jdbcType="VARCHAR" />
+    <result column="EU_PASSWORD" property="euPassword" jdbcType="VARCHAR" />
+    <result column="EU_SEX" property="euSex" jdbcType="CHAR" />
+    <result column="EU_BIRTHDAYL" property="euBirthdayl" jdbcType="DATE" />
+    <result column="EU_IDENTITY_CODE" property="euIdentityCode" jdbcType="VARCHAR" />
+    <result column="EU_EMAIL" property="euEmail" jdbcType="VARCHAR" />
+    <result column="EU_MOBILE" property="euMobile" jdbcType="VARCHAR" />
+    <result column="EU_ADDRESS" property="euAddress" jdbcType="VARCHAR" />
+    <result column="EU_STATUS" property="euStatus" jdbcType="DECIMAL" />
+  </resultMap>
+ <!-- 查询模块start-->
+  <select id="login" resultMap="BaseResultMap" parameterType="easybuy.pojo.EasyBuyUser">
+     select 
+     	EU_USER_ID,
+     	EU_USER_NAME,
+     	EU_PASSWORD,
+     	EU_SEX,
+     	EU_BIRTHDAYL,
+     	EU_IDENTITY_CODE,
+     	EU_EMAIL,
+     	EU_MOBILE,
+     	EU_ADDRESS,
+     	EU_STATUS
+    from
+        EASYBUYUSER
+    where
+        EU_USER_NAME = #{euUserName,jdbcType = VARCHAR}
+    and
+        EU_PASSWORD = #{euPassword,jdbcType = VARCHAR} 
+  </select>
+  
+   <select id="getByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+     select 
+     	EU_USER_ID,
+     	EU_USER_NAME,
+     	EU_PASSWORD,
+     	EU_SEX,
+     	EU_BIRTHDAYL,
+     	EU_IDENTITY_CODE,
+     	EU_EMAIL,
+     	EU_MOBILE,
+     	EU_ADDRESS,
+     	EU_STATUS
+    from
+        EASYBUYUSER
+    where
+        EU_USER_NAME = #{euUserName,jdbcType = VARCHAR}
+  </select>
+    <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.String">
+     select 
+     	EU_USER_ID,
+     	EU_USER_NAME,
+     	EU_PASSWORD,
+     	EU_SEX,
+     	EU_BIRTHDAYL,
+     	EU_IDENTITY_CODE,
+     	EU_EMAIL,
+     	EU_MOBILE,
+     	EU_ADDRESS,
+     	EU_STATUS
+    from
+        EASYBUYUSER
+    where
+        EU_USER_ID = #{userId,jdbcType = VARCHAR}
+  </select>
+  <select id="list" resultMap="BaseResultMap" parameterType="map">
+  select
+   EU_USER_ID,
+   EU_USER_NAME,
+   EU_PASSWORD,
+   EU_SEX,
+   EU_BIRTHDAYL,
+   EU_IDENTITY_CODE,
+   EU_EMAIL,
+   EU_MOBILE,
+   EU_ADDRESS,
+   EU_STATUS,
+   rn
+ from
+ ( 
+    select
+         t.EU_USER_ID,
+     	 t.EU_USER_NAME,
+     	 t.EU_PASSWORD,
+     	 t.EU_SEX,
+         t.EU_BIRTHDAYL,
+     	 t.EU_IDENTITY_CODE,
+     	 t.EU_EMAIL,
+     	 t.EU_MOBILE,
+     	 t.EU_ADDRESS,
+     	 t.EU_STATUS,
+         rownum rn
+  from   
+     (
+       select
+             EU_USER_ID,
+     	     EU_USER_NAME,
+     	     EU_PASSWORD,
+     	     EU_SEX,
+         	 EU_BIRTHDAYL,
+     	     EU_IDENTITY_CODE,
+     	     EU_EMAIL,
+     	     EU_MOBILE,
+     	     EU_ADDRESS,
+     	     EU_STATUS
+       from
+             easybuyuser
+       where
+             1=1
+       <if test="euUserName != null" >
+        and EU_USER_NAME = #{euUserName,jdbcType=VARCHAR},
+       </if>
+       <if test="euPassword != null" >
+        and EU_PASSWORD = #{euPassword,jdbcType=VARCHAR},
+       </if>
+       <if test="euSex != null" >
+        and EU_SEX = #{euSex,jdbcType=CHAR},
+       </if>
+       <if test="euBirthdayl != null" >
+        and EU_BIRTHDAYL = #{euBirthdayl,jdbcType=DATE},
+       </if>
+       <if test="euIdentityCode != null" >
+        and EU_IDENTITY_CODE = #{euIdentityCode,jdbcType=VARCHAR},
+       </if>
+       <if test="euEmail != null" >
+        and EU_EMAIL = #{euEmail,jdbcType=VARCHAR},
+       </if>
+       <if test="euMobile != null" >
+        and EU_MOBILE = #{euMobile,jdbcType=VARCHAR},
+       </if>
+       <if test="euAddress != null" >
+        and EU_ADDRESS =  #{euAddress,jdbcType=VARCHAR},
+       </if>
+       <if test="euStatus != null" >
+        and EU_STATUS = #{euStatus,jdbcType=DECIMAL},
+       </if>
+     ) t
+  where 
+     rownum &lt;#{max}
+ )
+ where rn &gt;#{min}
+  </select>
+  <select id="count" parameterType="map" resultType="java.lang.Long" >
+    select
+            count(1)
+       from
+             easybuyuser
+       where
+             1=1
+       <if test="euUserName != null" >
+        and EU_USER_NAME = #{euUserName,jdbcType=VARCHAR},
+       </if>
+       <if test="euPassword != null" >
+        and EU_PASSWORD = #{euPassword,jdbcType=VARCHAR},
+       </if>
+       <if test="euSex != null" >
+        and EU_SEX = #{euSex,jdbcType=CHAR},
+       </if>
+       <if test="euBirthdayl != null" >
+        and EU_BIRTHDAYL = #{euBirthdayl,jdbcType=DATE},
+       </if>
+       <if test="euIdentityCode != null" >
+        and EU_IDENTITY_CODE = #{euIdentityCode,jdbcType=VARCHAR},
+       </if>
+       <if test="euEmail != null" >
+        and EU_EMAIL = #{euEmail,jdbcType=VARCHAR},
+       </if>
+       <if test="euMobile != null" >
+        and EU_MOBILE = #{euMobile,jdbcType=VARCHAR},
+       </if>
+       <if test="euAddress != null" >
+        and EU_ADDRESS =  #{euAddress,jdbcType=VARCHAR},
+       </if>
+       <if test="euStatus != null" >
+        and EU_STATUS = #{euStatus,jdbcType=DECIMAL},
+       </if>
+  </select>
+ <!-- 查询模块end -->
+  <insert id="insert" parameterType="easybuy.pojo.EasyBuyUser" >
+    insert into EASYBUYUSER (EU_USER_ID, EU_USER_NAME, EU_PASSWORD, 
+      EU_SEX, EU_BIRTHDAYL, EU_IDENTITY_CODE, 
+      EU_EMAIL, EU_MOBILE, EU_ADDRESS, 
+      EU_STATUS)
+    values (#{euUserId,jdbcType=VARCHAR}, #{euUserName,jdbcType=VARCHAR}, #{euPassword,jdbcType=VARCHAR}, 
+      #{euSex,jdbcType=CHAR}, #{euBirthdayl,jdbcType=DATE}, #{euIdentityCode,jdbcType=VARCHAR}, 
+      #{euEmail,jdbcType=VARCHAR}, #{euMobile,jdbcType=VARCHAR}, #{euAddress,jdbcType=VARCHAR}, 
+      #{euStatus,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="easybuy.pojo.EasyBuyUser" >
+    insert into EASYBUYUSER
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        EU_USER_ID,
+      <if test="euUserName != null" >
+        EU_USER_NAME,
+      </if>
+      <if test="euPassword != null" >
+        EU_PASSWORD,
+      </if>
+      <if test="euSex != null" >
+        EU_SEX,
+      </if>
+      <if test="euBirthdayl != null" >
+        EU_BIRTHDAYL,
+      </if>
+      <if test="euIdentityCode != null" >
+        EU_IDENTITY_CODE,
+      </if>
+      <if test="euEmail != null" >
+        EU_EMAIL,
+      </if>
+      <if test="euMobile != null" >
+        EU_MOBILE,
+      </if>
+      <if test="euAddress != null" >
+        EU_ADDRESS,
+      </if>
+      <if test="euStatus != null" >
+        EU_STATUS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      seq_euuser.nextval,
+      <if test="euUserName != null" >
+        #{euUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="euPassword != null" >
+        #{euPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="euSex != null" >
+        #{euSex,jdbcType=CHAR},
+      </if>
+      <if test="euBirthdayl != null" >
+        #{euBirthdayl,jdbcType=DATE},
+      </if>
+      <if test="euIdentityCode != null" >
+        #{euIdentityCode,jdbcType=VARCHAR},
+      </if>
+      <if test="euEmail != null" >
+        #{euEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="euMobile != null" >
+        #{euMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="euAddress != null" >
+        #{euAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="euStatus != null" >
+        #{euStatus,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="easybuy.pojo.EasyBuyUser">
+  update 
+        EASYBUYUSER
+  set
+       EU_PASSWORD = #{euPassword,jdbcType=VARCHAR},
+       EU_SEX =  #{euSex,jdbcType=CHAR},
+       EU_MOBILE = #{euMobile,jdbcType=VARCHAR},
+       EU_ADDRESS =   #{euAddress,jdbcType=VARCHAR}
+   where 
+       EU_USER_ID =  #{euUserId,jdbcType=VARCHAR}
+  </update>
+  <delete id="delete" parameterType="java.lang.String" >
+  delete 
+  from
+     EASYBUYUSER
+  where
+      EU_USER_ID =  #{userId,jdbcType=VARCHAR}
+  </delete>
+</mapper>

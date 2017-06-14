@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>后台管理 - 易买网</title>
+ <script type="text/javascript" src="/EasyBuyManager/js/jquery.min.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/common.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/layer/layer.js"></script>
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/layer.css" />
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/style.css" />
+ <script type="text/javascript" src="/EasyBuyManager/scripts/function.js"></script>
+</head>
+<body>
+<div id="header" class="wrap">
+	<div id="logo"><img src="../images/logo.gif" /></div>
+	<div class="navbar">
+		<ul class="clearfix">
+			<li><a href="index.html">首页</a></li>
+			<li><a href="user.html">用户</a></li>
+			<li><a href="product.html">商品</a></li>
+			<li class="current"><a href="order.html">订单</a></li>
+			<li><a href="guestbook.html">留言</a></li>
+			<li><a href="news.html">新闻</a></li>
+		</ul>
+	</div>
+</div>
+<div id="childNav">
+	<div class="welcome wrap" id="welcome">
+		
+	</div>
+</div>
+<div id="position" class="wrap">
+	您现在的位置：<a href="index.html">易买网</a> &gt; 管理后台
+</div>
+<div id="main" class="wrap">
+	<div id="menu-mng" class="lefter">
+		<div class="box">
+			<dl>
+				<dt>用户管理</dt>
+				<dd><em><a href="user-add.html">新增</a></em><a href="user.html">用户管理</a></dd>
+				<dt>商品信息</dt>
+				<dd><em><a href="productClass-add.html">新增</a></em><a href="productClass.html">分类管理</a></dd>
+				<dd><em><a href="product-add.html">新增</a></em><a href="product.html">商品管理</a></dd>
+				<dt>订单管理</dt>
+				<dd><a href="order.html">订单管理</a></dd>
+				<dt>留言管理</dt>
+				<dd><a href="guestbook.html">留言管理</a></dd>
+				<dt>新闻管理</dt>
+				<dd><em><a href="news-add.html">新增</a></em><a href="news.html">新闻管理</a></dd>
+			</dl>
+		</div>
+	</div>
+	<div class="main">
+		<h2>订单管理</h2>
+		<div class="manage">
+			<div class="search">
+				<form method="get">
+					订单号：<input type="text" id="eoIdd"  name="orderId" /> 订货人：<input type="text" id="userName" class="text" name="userName" />订单状态:<select id="status"><option value="">请选择订单状态</option><option value="未发货">未发货</option><option value="已发货">已发货</option><option value="已收货">已收货</option><option value="已取消">已取消</option><option value="取消审核中">取消审核中</option></select> <label class="ui-blue"><input type="button" name="serach" onclick="load(1)" value="查询" /></label>
+				</form>
+			</div>
+			<div class="spacer"></div>
+			<table class="list" id="list">
+			</table>
+			<div class="clear"></div>
+			<div class="pager">
+				<ul class="clearfix" id="page">
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="footer">
+	Copyright &copy; 2010 北大青鸟 All Rights Reserved. 京ICP证1000001号
+</div>
+<script >
+loadCommon();
+function load(targetPage){
+   var params = GetRequest();
+   var pageParam = typeof(params["targetPage"])=="undefined" ? "1" : params["targetPage"];
+   targetPage = typeof(targetPage)=="undefined" ? pageParam : targetPage;
+   var url= "/EasyBuyManager/manage/order.html?targetPage="+targetPage;
+   var  eoId = $("#eoIdd"),
+        userName = $("#userName"),
+        status = $("#status"),
+        userNameVal = $.trim(userName.val()),
+		eoIdVal =  $.trim(eoId.val());
+		statusVal = $.trim(status.val());
+  $.ajax({
+			type : "post",
+			url : "/EasyBuyManager/order/list",
+			async: false ,
+			data : {
+				targetPage :targetPage,
+				eoId : eoIdVal,
+				userName : userNameVal,
+				status : statusVal,
+			},
+			success : function(result) {
+			   if(result != null){
+			   var html = '<tr><th>订单号</th><th>下单用户</th><th>商品</th><th>数量</th><th>金额</th><th>日期</th><th>发货地址</th><th>状态</th><th>操作</th></tr>'
+			   var ordervos = result.ordervos;
+			   for (var i=0;i<ordervos.length;i++){
+                 if(ordervos[i].eoStatus=="未发货"){
+                 html += '<tr><td class="first w4 c">'+ordervos[i].eoId+'</td><td class="w1 c">'+ordervos[i].userName+'</td><td><a href="/EasyBuy/product/view.html?epId='+ordervos[i].eoProId+'"><img src="/EasyBuy/'+ordervos[i].epFileName+'" onload="if (this.width>50 || this.height>30) if (this.width/this.height>50/30) this.width=50; else this.height=30;"  />'+ordervos[i].epName+'</a></td><td>'+ordervos[i].eoNumber+'件</td><td>￥'+ordervos[i].eoCost+'</td><td>'+ordervos[i].creatTime+'</td><td>'+ordervos[i].addres+'</td><td>'+ordervos[i].eoStatus+'</td><td class="w1 c"><a href="javascript:formSubmit('+ordervos[i].eoId+',2)">已发货</a> <a href="javascript:deletOrder('+ordervos[i].eoId+');">删除</a></td></tr>';
+                 }
+                 if(ordervos[i].eoStatus=="已收货"){
+                 html += '<tr><td class="first w4 c">'+ordervos[i].eoId+'</td><td class="w1 c">'+ordervos[i].userName+'</td><td><a href="/EasyBuy/product/view.html?epId='+ordervos[i].eoProId+'"><img src="/EasyBuy/'+ordervos[i].epFileName+'" onload="if (this.width>50 || this.height>30) if (this.width/this.height>50/30) this.width=50; else this.height=30;"  />'+ordervos[i].epName+'</a></td><td>'+ordervos[i].eoNumber+'件</td><td>￥'+ordervos[i].eoCost+'</td><td>'+ordervos[i].creatTime+'</td><td>'+ordervos[i].addres+'</td><td>'+ordervos[i].eoStatus+'</td><td class="w1 c">该订单已完成</td></tr>';
+                 }
+                  if(ordervos[i].eoStatus=="取消审核中"){
+                 html += '<tr><td class="first w4 c">'+ordervos[i].eoId+'</td><td class="w1 c">'+ordervos[i].userName+'</td><td><a href="/EasyBuy/product/view.html?epId='+ordervos[i].eoProId+'"><img src="/EasyBuy/'+ordervos[i].epFileName+'" onload="if (this.width>50 || this.height>30) if (this.width/this.height>50/30) this.width=50; else this.height=30;"  />'+ordervos[i].epName+'</a></td><td>'+ordervos[i].eoNumber+'件</td><td>￥'+ordervos[i].eoCost+'</td><td>'+ordervos[i].creatTime+'</td><td>'+ordervos[i].addres+'</td><td>'+ordervos[i].eoStatus+'</td><td class="w1 c"><a href="javascript:formSubmit('+ordervos[i].eoId+',1)">通过</a> <a href="javascript:refue('+ordervos[i].eoId+');">拒绝</a></td></tr>';
+                 }
+                 if(ordervos[i].eoStatus=="已取消"){
+                 html += '<tr><td class="first w4 c">'+ordervos[i].eoId+'</td><td class="w1 c">'+ordervos[i].userName+'</td><td><a href="/EasyBuy/product/view.html?epId='+ordervos[i].eoProId+'"><img src="/EasyBuy/'+ordervos[i].epFileName+'" onload="if (this.width>50 || this.height>30) if (this.width/this.height>50/30) this.width=50; else this.height=30;"  />'+ordervos[i].epName+'</a></td><td>'+ordervos[i].eoNumber+'件</td><td>￥'+ordervos[i].eoCost+'</td><td>'+ordervos[i].creatTime+'</td><td>'+ordervos[i].addres+'</td><td>'+ordervos[i].eoStatus+'</td><td class="w1 c">订单已取消<a href="javascript:deletOrder('+ordervos[i].eoId+');">删除</a></td></tr>';
+                 }
+                 if(ordervos[i].eoStatus=="已发货"){
+                 html += '<tr><td class="first w4 c">'+ordervos[i].eoId+'</td><td class="w1 c">'+ordervos[i].userName+'</td><td><a href="/EasyBuy/product/view.html?epId='+ordervos[i].eoProId+'"><img src="/EasyBuy/'+ordervos[i].epFileName+'" onload="if (this.width>50 || this.height>30) if (this.width/this.height>50/30) this.width=50; else this.height=30;"  />'+ordervos[i].epName+'</a></td><td>'+ordervos[i].eoNumber+'件</td><td>￥'+ordervos[i].eoCost+'</td><td>'+ordervos[i].creatTime+'</td><td>'+ordervos[i].addres+'</td><td>'+ordervos[i].eoStatus+'</td><td class="w1 c"><a href="javascript:formSubmit('+ordervos[i].eoId+',3)">取消发货</a></td></tr>';
+                 }
+			   }
+			   history.replaceState(null, "订单列表", url);
+			   $("#list").html(html);
+			     loadPage(result,"订单",result.targetPage)
+			   }
+			},
+			error : function(result) {
+				layer.alert("数据读取错误");
+			}
+		});	
+}
+function formSubmit(eoId,status){
+	if(!eoId){
+	 window.location.href="/EasyBuyManager/manage/order.html?targetPage=1";
+	}
+	var msg="";
+	if(status=="1"){
+	  msg="您确定取消该订单吗?";
+	}
+   if(status=="2"){
+     msg="您确定已发货吗?";
+   }
+   if(status=="3"){
+     msg="您确定未发货吗?";
+   }
+	layer.confirm(msg, {
+  	btn: ['确定','取消'] //按钮
+   	}, function(){
+  	$.ajax({
+			type : "post",
+			url : "/EasyBuyManager/order/modify",
+			data : {
+				eoId : eoId,
+				status : status,
+			},
+			success : function(result) { 
+				if(result== "1"){
+				layer.alert("订单状态已变更");
+				load();
+				}
+			},
+			error : function(result) {
+				layer.alert("数据读取失败,请刷新重试！");
+			}
+		});						
+	}, function(index){
+  	   layer.close(index)
+});
+}
+
+function refue(eoId){
+ layer.open({
+            type: 2,
+            fix: false, 
+            shadeClose: true, 
+            maxmin: true,
+            title: "选择拒绝后的订单状态",
+            btn: ['确定','取消'],
+            area: ['300px', '200px'],
+            maxmin: false,
+            content: ['/EasyBuyManager/manage/order-modify.html', 'no'], //iframe的url，no代表不显示滚动条
+            yes:function(index,layero){
+             var data=$(layero).find("iframe")[0].contentWindow.getStatus();
+             layer.close(index);
+             formSubmit(eoId,data);
+            }
+           
+        });
+}
+function deletOrder(eoId){
+	if(!eoId){
+	     window.location.href="/EasyBuyManager/manage/order.html?targetPage=1";
+	}
+	layer.confirm('您确定要删除吗?', {
+  	btn: ['确定','取消'] //按钮
+   	}, function(){
+  $.ajax({
+			type : "post",
+			url : "/EasyBuyManager/order/delete",
+			data : {
+				eoId : eoId,
+			},
+			success : function(result) { 
+				if(result== "1"){
+				layer.alert("删除成功");
+				load();
+				}
+			},
+			error : function(result) {
+				layer.alert("数据读取失败,请刷新重试！");
+			}
+		});			
+	}, function(index){
+  	   layer.close(index)
+});			
+}
+load();
+</script>
+</body>
+</html>

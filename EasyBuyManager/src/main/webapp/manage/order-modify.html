@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>后台管理 - 易买网</title>
+ <script type="text/javascript" src="/EasyBuyManager/js/jquery.min.js"></script>
+</head>
+<body>
+<table align="center">
+<tr><th>选择拒绝后的订单状态</th></tr>
+<tr><td><select id="status"><option value="2">已发货</option><option value="3">未发货</option></select></td></tr>
+</table>
+<script >
+function getStatus(){
+ return $("#status").val();
+}
+</script>
+</body>
+</html>

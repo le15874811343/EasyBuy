@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.com.pojo.mapping.EasyBuyOrderMapper" >
+  <resultMap id="BaseResultMap" type="easybuy.pojo.EasyBuyOrder" >
+    <id column="EO_ID" property="eoId" jdbcType="DECIMAL" />
+    <result column="EO_USER_ID" property="eoUserId" jdbcType="DECIMAL" />
+    <result column="EO_Pro_ID" property="eoProId" jdbcType="VARCHAR" />
+    <result column="EO_CREATE_TIME" property="eoCreateTime" jdbcType="DATE" />
+    <result column="EO_COST" property="eoCost" jdbcType="DECIMAL" />
+    <result column="EO_STATUS" property="eoStatus" jdbcType="VARCHAR" />
+  </resultMap>
+    <resultMap id="VoResultMap" type="easybuy.pojo.vo.EasyBuyOrderVo" >
+    <id column="EO_ID" property="eoId" jdbcType="DECIMAL" />
+    <result column="ep_name" property="epName" jdbcType="DECIMAL" />
+    <result column="EO_Pro_ID" property="eoProId" jdbcType="VARCHAR" />
+    <result column="createtime" property="creatTime" jdbcType="DATE" />
+    <result column="EO_COST" property="eoCost" jdbcType="DECIMAL" />
+    <result column="EO_STATUS" property="eoStatus" jdbcType="VARCHAR" />
+    <result column="eo_number" property="eoNumber" jdbcType="DECIMAL" />
+     <result column="ep_file_name" property="epFileName" jdbcType="VARCHAR" />
+  </resultMap>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+      EO_ID,
+      EO_USER_ID,
+      EO_USER_NAME, 
+      EO_CREATE_TIME, 
+      EO_COST, 
+      EO_STATUS, 
+    from EASYBUYORDER
+    where EO_ID = #{eoId,jdbcType=DECIMAL}
+  </select>
+  <select id="listVo" resultMap="VoResultMap" parameterType="map">
+ select
+        eo_pro_id,
+	    eo_id,
+	    createtime,
+	    ep_name,
+		eo_cost,
+		eo_number,
+		ep_file_name,
+		eo_status,
+		rn  
+from
+    (
+	  select 
+	        t.eo_pro_id,
+			t.eo_id,
+			t.createtime,
+			t.ep_name,
+			t.eo_cost,
+			t.eo_number,
+			t.ep_file_name,
+			t.eo_status,
+			rownum rn 
+	  from 
+	       (
+		    select 
+                 orde.eo_pro_id,
+                 orde.eo_id,
+                 to_char(orde.eo_create_time ,'yyyy-mm-dd HH24:mi:ss') createtime,
+                 product.ep_name,
+                 orde.eo_cost,
+                 orde.eo_number,
+                 product.ep_file_name,
+                 orde.eo_status
+            from
+                 easybuyorder orde
+            inner join
+                 easybuyproduct product
+            on  
+			     orde.eo_pro_id = product.ep_id
+            where 
+			     1 =1
+		    <if test="userId != null">
+            and  
+			     orde.eo_user_id = #{userId}
+            </if>
+            <if test="eoId != null">
+            and   
+			     orde.eo_id = #{eoId}
+            </if>
+            <if test="status != null">
+            and   
+			     orde.eo_status = #{status}
+            </if>
+            order by 
+			     orde.eo_id DESC
+            )t 
+	  where 
+	        rownum &lt; #{max}
+	) 
+where 
+    rn &gt; #{min}
+  </select>
+  <select id="count" resultType="java.lang.Long" parameterType="map">
+  select count(1)
+ from
+easybuyorder orde
+inner join
+easybuyproduct product
+on  orde.eo_pro_id = product.ep_id
+where 1 =1 
+<if test="userId != null">
+ and   orde.eo_user_id = #{userId}
+</if>
+<if test="eoId != null">
+ and   orde.eo_id = #{eoId}
+</if>
+<if test="status != null">
+ and   orde.eo_status = #{status}
+</if>
+  </select>
+  <select id="countall" resultType="java.lang.Long">
+ select count(1)
+ from
+easybuyorder
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from EASYBUYORDER
+    where EO_ID = #{eoId,jdbcType=DECIMAL}
+  </delete>
+  <insert id="insert" parameterType="easybuy.pojo.EasyBuyOrder" >
+    insert into EASYBUYORDER (EO_ID, EO_USER_ID, EO_USER_NAME, 
+      EO_USER_ADDRESS, EO_CREATE_TIME, EO_COST, 
+      EO_STATUS, EO_TYPE)
+    values (#{eoId,jdbcType=DECIMAL}, #{eoUserId,jdbcType=DECIMAL}, #{eoUserName,jdbcType=VARCHAR}, 
+      #{eoUserAddress,jdbcType=VARCHAR}, #{eoCreateTime,jdbcType=DATE}, #{eoCost,jdbcType=DECIMAL}, 
+      #{eoStatus,jdbcType=VARCHAR}, #{eoType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="easybuy.pojo.EasyBuyOrder" >
+    insert into EASYBUYORDER
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      
+        EO_ID,
+      
+      <if test="eoUserId != null" >
+        EO_USER_ID,
+      </if>
+      <if test="eoProId != null" >
+        EO_PRO_ID,
+      </if>
+      <if test="eoCreateTime != null" >
+        EO_CREATE_TIME,
+      </if>
+      <if test="eoCost != null" >
+        EO_COST,
+      </if>
+      <if test="eoStatus != null" >
+        EO_STATUS,
+      </if>
+       <if test="number != null" >
+        EO_NUMBER,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #{eoId,jdbcType=DECIMAL},
+      <if test="eoUserId != null" >
+        #{eoUserId,jdbcType=DECIMAL},
+      </if>
+      <if test="eoProId != null" >
+        #{eoProId,jdbcType=VARCHAR},
+      </if>
+      <if test="eoCreateTime != null" >
+       to_date(#{eoCreateTime},'yyyy-mm-dd HH24:mi:ss'),
+      </if>
+      <if test="eoCost != null" >
+        #{eoCost,jdbcType=DECIMAL},
+      </if>
+      <if test="eoStatus != null" >
+        #{eoStatus,jdbcType=VARCHAR},
+      </if>
+       <if test="number != null" >
+       #{number,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="easybuy.pojo.EasyBuyOrder" >
+    update EASYBUYORDER
+    <set >
+      <if test="eoUserId != null" >
+        EO_USER_ID = #{eoUserId,jdbcType=DECIMAL},
+      </if>
+      <if test="eoUserName != null" >
+        EO_USER_NAME = #{eoUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="eoUserAddress != null" >
+        EO_USER_ADDRESS = #{eoUserAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="eoCreateTime != null" >
+        EO_CREATE_TIME = #{eoCreateTime,jdbcType=DATE},
+      </if>
+      <if test="eoCost != null" >
+        EO_COST = #{eoCost,jdbcType=DECIMAL},
+      </if>
+      <if test="eoStatus != null" >
+        EO_STATUS = #{eoStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="eoType != null" >
+        EO_TYPE = #{eoType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where EO_ID = #{eoId,jdbcType=DECIMAL}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="easybuy.pojo.EasyBuyOrder" >
+    update EASYBUYORDER
+    set EO_USER_ID = #{eoUserId,jdbcType=DECIMAL},
+      EO_USER_NAME = #{eoUserName,jdbcType=VARCHAR},
+      EO_USER_ADDRESS = #{eoUserAddress,jdbcType=VARCHAR},
+      EO_CREATE_TIME = #{eoCreateTime,jdbcType=DATE},
+      EO_COST = #{eoCost,jdbcType=DECIMAL},
+      EO_STATUS = #{eoStatus,jdbcType=VARCHAR},
+      EO_TYPE = #{eoType,jdbcType=VARCHAR}
+    where EO_ID = #{eoId,jdbcType=DECIMAL}
+  </update>
+  <update id="updateStatus" parameterType="easybuy.pojo.EasyBuyOrder">
+    update EASYBUYORDER
+    set  EO_STATUS = #{eoStatus,jdbcType=VARCHAR}
+     where EO_ID = #{eoId,jdbcType=DECIMAL}
+  </update>
+</mapper>

@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>后台管理 - 易买网</title>
+ <script type="text/javascript" src="/EasyBuyManager/js/jquery.min.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/common.js"></script>
+  <script type="text/javascript" src="/EasyBuyManager/js/ajaxfileupload.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/layer/layer.js"></script>
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/layer.css" />
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/style.css" />
+ <script type="text/javascript" src="/EasyBuyManager/scripts/function.js"></script>
+</head>
+<body>
+<div id="header" class="wrap">
+	<div id="logo"><img src="../images/logo.gif" /></div>
+	<div class="navbar">
+		<ul class="clearfix">
+			<li><a href="index.html">首页</a></li>
+			<li><a href="user.html">用户</a></li>
+			<li class="current"><a href="product.html">商品</a></li>
+			<li><a href="order.html">订单</a></li>
+			<li><a href="guestbook.html">留言</a></li>
+			<li><a href="news.html">新闻</a></li>
+		</ul>
+	</div>
+</div>
+<div id="childNav">
+	<div class="welcome wrap" id="welcome">
+	</div>
+</div>
+<div id="position" class="wrap">
+	您现在的位置：<a href="index.html">易买网</a> &gt; 管理后台
+</div>
+<div id="main" class="wrap">
+	<div id="menu-mng" class="lefter">
+		<div class="box">
+			<dl>
+				<dt>用户管理</dt>
+				<dd><em><a href="user-add.html">新增</a></em><a href="user.html">用户管理</a></dd>
+				<dt>商品信息</dt>
+				<dd><em><a href="productClass-add.html">新增</a></em><a href="productClass.html">分类管理</a></dd>
+				<dd><em><a href="product-add.html">新增</a></em><a href="product.html">商品管理</a></dd>
+				<dt>订单管理</dt>
+				<dd><a href="order.html">订单管理</a></dd>
+				<dt>留言管理</dt>
+				<dd><a href="guestbook.html">留言管理</a></dd>
+				<dt>新闻管理</dt>
+				<dd><em><a href="news-add.html">新增</a></em><a href="news.html">新闻管理</a></dd>
+			</dl>
+		</div>
+	</div>
+	<div class="main">
+		<h2>修改商品</h2>
+		<div class="manage">
+			<form action="manage-result.html">
+				<table class="form" id="view">
+					
+				</table>
+			</form>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="footer">
+	Copyright &copy; 2010 北大青鸟 All Rights Reserved. 京ICP证1000001号
+</div>
+<script >
+ loadCommon();
+function load(){
+   var params = GetRequest();
+   var epId = typeof(params["epId"])=="undefined" ? "" : params["epId"];
+   if(epId==null||$.trim(epId)==""){
+     window.location.href="/EasyBuyManager/manage/product.html?targetPage=1";
+     return false;
+   }
+    $.ajax({
+			type : "post",
+			url : "/EasyBuyManager/product/modifyView",
+			async: false ,
+			data : {
+				epId :epId,
+			},
+			success : function(result) {
+			if(result!=null){
+			   var product = result.productDea;
+			   var html = '<tr><td class="field">商品名称：</td><td><input id="epName" type="text" class="text" name="productName" value="'+product.epName+'" /></td></tr>';
+			       html+='<tr><td class="field">商品描述：</td><td><textarea id="epDescription"  name="epDescription">'+product.epDescription+'</textarea></td></tr>';
+			       html+='<tr><td class="field">所属主类：</td><td><select onchange="child('+product.epcChildId+')" id="parentId" name="parentId"><option value="">请选择主类</option>';
+			       var parents = result.parents;
+			       for(var i=0;i<parents.length;i++){
+			       		if(product.epcId==parents[i].epcId){
+			       			html+='<option value="'+parents[i].epcId+'" selected="true">'+parents[i].epcName+'</option>';		
+			       		} else {
+			       			html+='<option value="'+parents[i].epcId+'">'+parents[i].epcName+'</option>';
+			       		}
+			       
+			       }
+			       html+='<tr><td class="field">所属子类：</td><td><select id="childId" name="childId"></select>'
+			       html+='</select></td></tr>';
+			       html+='<tr><td>商品图片:</td><td ><div align="center" style="height:200;border:5px solid red; " id="fa1"><img src="/EasyBuy/'+product.epFileName+'" /></div><div style=" height:0px; overflow:hidden; position:absolute;" ><input type="file" id="filePath" name="filePath" onchange="fileupload('+"'filePath'"+','+"'fa1'"+','+"'ttp'"+')"/></div><input type="button" onclick="document.getElementById('+"'filePath'"+').click();" value="上传" /></td></tr>';
+			       html+='<tr><td class="field">商品价格：</td><td><input type="text" id="epPrice" class="text tiny" name="productPrice" onkeyup="priceForm(this)" onchange="priceForm(this)" value="'+product.epPrice+'"/> 元</td></tr>'
+			        html+='<tr><td class="field">折扣率：</td><td><input type="text" id="epRebate" class="text tiny" name="productName" value="'+product.epRebate+'" onkeyup="priceForm(this)" onchange="priceForm(this)" />(折后价为原价乘该数值)</td></tr>';
+			       html+='<tr><td class="field">库存：</td><td><input type="text" id="epStock" class="text tiny" name="productName" value="'+product.epStock+'" onkeyup="stockenForm(this)" onchange="stockenForm(this)"/>件</td></tr>';
+			   	   html+='<tr><td></td><td><label class="ui-blue"><input type="button" name="update" value="修改" onclick="formSubmit('+product.epId+')"/></label></td></tr>';
+			       html+='<tr><td> <input type="hidden" id="ttp" name="ttp" value=""/></td></tr>'
+			   $("#view").html(html);
+			   child(product.epcChildId);
+			   }
+			   else{
+			    window.location.href="/EasyBuyManager/manage/product.html?targetPage=1";
+			   }
+			},
+			error : function(result) {
+				layer.alert("数据读取错误");
+			}
+		});	
+}
+function child(productChildId){
+ var childSel = document.getElementById("childId");
+ childSel.length=0;
+ var html ='<option value="">请选择主类</option>';
+ var parentId = $("#parentId").val();
+ if(parentId !=""){
+    html ='<option value="">请选择子类</option>';
+  $.ajax({
+			type : "post",
+			url : "/EasyBuyManager/category/childList",
+			async: false ,
+			data : {
+				parentId :parentId,
+			},
+			success : function(result) {
+			if(result!=null){
+			  for(var i=0;i<result.length;i++){
+			  if(result[i].epcId==productChildId){
+			   html += '<option value="'+result[i].epcId+'" selected="true">'+result[i].epcName+'</option>';
+			  } else{
+			  html += '<option value="'+result[i].epcId+'" >'+result[i].epcName+'</option>';	
+			  }
+			  }
+			   }
+			   else{
+			    window.location.href="/EasyBuyManager/manage/product.html?targetPage=1";
+			   }
+			},
+			error : function(result) {
+				layer.alert("数据读取错误");
+			}
+		});
+		}
+		childSel.innerHTML=html;
+}
+
+        function fileupload(str,div1,str2){
+         var str1=document.all(str);
+         var div=document.all(div1); 
+         var str3=document.all(str2);
+            if(str1.value.length==0){  
+                alert("上传文件不能为空!");  
+                return false;  
+            }  
+            $.ajaxFileUpload({  
+                    url:"/EasyBuyManager/image/upload?sctname="+str3.value,  
+                    secureuri:false,  
+                    fileElementId:str,  
+                    dataType: 'text/xml', 
+                    type:'post',            
+                    success: function (msg) {  
+                        var start = msg.indexOf(">");
+                      if (start != -1) {
+                          var end = msg.indexOf("<", start + 1);
+                          }
+                          if (end != -1) {
+                              msg = msg.substring(start + 1, end);
+                          }
+                        
+                         div.innerHTML="<img src='/EasyBuyManager/tepimages/"+msg+"'>";
+                         str3.value=msg;
+                    },error: function (data, status, e){  
+                        alert("fail");  
+                    }  
+                }  
+            );  
+        } 
+ function formSubmit(epId) {
+			var epName = $("#epName"),
+			    epDescription = $("#epDescription"), 
+			    div=$("#fa1");
+			    epPrice = $("#epPrice"), 
+			    epStock = $("#epStock"), 
+			    epcId = $("#parentId"), 
+			    epcChildId = $("#childId"),
+			    epFileName = $("#ttp"),
+			    epRebate = $("#epRebate"),
+			    epNameVal = $.trim(epName.val()),
+			    epDescriptionVal = $.trim(epDescription.val()), 
+			    epPriceVal = $.trim(epPrice.val()), 
+			    epStockVal = $.trim(epStock.val()), 
+			    epcIdVal = $.trim(epcId.val()),
+			    epcChildIdVal = $.trim(epcChildId.val()),
+			    epFileNameVal = $.trim(epFileName.val()),
+			    epRebateVal = $.trim(epRebate.val());
+			if (!epNameVal) {
+				layer.tips("商品名不能为空！", epName);
+				epName.focus();
+				return false;
+			}
+			if (!epDescriptionVal) {
+				layer.tips("商品描述不能为空！", epDescription);
+				epDescription.focus();
+				return false;
+			}
+			if (epcIdVal=="") {
+				layer.tips("请选择主分类！", epcId);
+				epcId.focus();
+				return false;
+			}
+			if (epcChildIdVal=="") {
+				layer.tips("请选择子分类！", epcChildId);
+				epcChildId.focus();
+				return false;
+			}
+			if (!epPriceVal) {
+				layer.tips("商品价格不能为空！", epPrice);
+				epPrice.focus();
+				return false;
+			}
+			if (!epRebateVal) {
+				layer.tips("商品折扣不能为空！", epRebate);
+				epRebate.focus();
+				return false;
+			}
+			if(epRebateVal){
+			if(parseFloat(epRebateVal)>1){
+			    layer.tips("商品折扣不能大于1或小于0！", epRebate);
+				epRebate.focus();
+				return false;
+			}
+			}
+			if (!epStockVal) {
+				layer.tips("商品库存不能为空！", epStock);
+				epStock.focus();
+				return false;
+			}
+			$.ajax({
+				type : "post",
+				url : "/EasyBuyManager/product/update",
+				data : {
+					epName : epNameVal,
+					epDescription : epDescriptionVal,
+					epPrice : epPriceVal,
+					epStock : epStockVal,
+					epcId : epcIdVal,
+					epcChildId : epcChildIdVal,
+					epFileName : epFileNameVal,
+					epRebate : epRebateVal,
+					epId : epId,
+				},
+				success : function(result) {
+				if(result== "1"){
+				layer.alert("修改成功");
+				}
+				},
+				error : function(result) {
+					layer.alert("数据读取失败,请刷新重试！");
+				}
+			});
+		}
+load();
+
+function priceForm(text){
+ text.value= text.value.match(/\d+(\.\d{0,1})?/) ? text.value.match(/\d+(\.\d{0,1})?/)[0] : '';
+}
+
+function stockenForm(text){
+if(text.value.length==1){text.value=text.value.replace(/[^0-9]/g,'')}else{text.value=text.value.replace(/\D/g,'')}
+}
+</script>
+</body>
+</html>

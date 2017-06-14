@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.com.pojo.mapping.EasyBuyNewsMapper" >
+  <resultMap id="BaseResultMap" type="easybuy.pojo.EasyBuyNews" >
+    <id column="EN_ID" property="enId" jdbcType="DECIMAL" />
+    <result column="EN_TITLE" property="enTitle" jdbcType="VARCHAR" />
+    <result column="EN_CONTENT" property="enContent" jdbcType="VARCHAR" />
+    <result column="EN_CREATE_TIME" property="enCreateTime" jdbcType="DATE" />
+    <result column="EN_TYPE" property="enType" jdbcType="DECIMAL" />
+  </resultMap>
+  <!-- 查询模块start -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+   		EN_ID,
+   		EN_TITLE,
+   		EN_CONTENT, 
+   		EN_CREATE_TIME,
+   		EN_TYPE
+    from 
+        EASYBUYNEWS
+    where 
+        EN_ID = #{enId,jdbcType=DECIMAL}
+  </select>
+  <select id="listByDate" resultMap="BaseResultMap" parameterType="Map">
+ select 
+ 	 EN_ID,
+     EN_TITLE,
+     EN_CONTENT, 
+     EN_CREATE_TIME,
+     EN_TYPE,
+     rownum
+ from
+ (
+  select
+   		EN_ID,
+        EN_TITLE,
+   		EN_CONTENT, 
+   		EN_CREATE_TIME,
+      EN_TYPE
+    from 
+        EASYBUYNEWS
+    where 
+        EN_TYPE= #{enType,jdbcType=VARCHAR}
+    order by
+        EN_CREATE_TIME DESC
+ )
+ where 
+  rownum &lt; #{maxRows,jdbcType=DECIMAL} 
+  </select>
+  <!-- 查询模块end -->
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from EASYBUYNEWS
+    where EN_ID = #{enId,jdbcType=DECIMAL}
+  </delete>
+  <insert id="insert" parameterType="easybuy.pojo.EasyBuyNews" >
+    insert into EASYBUYNEWS (EN_ID, EN_TITLE, EN_CONTENT, 
+      EN_CREATE_TIME)
+    values (#{enId,jdbcType=DECIMAL}, #{enTitle,jdbcType=VARCHAR}, #{enContent,jdbcType=VARCHAR}, 
+      #{enCreateTime,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="easybuy.pojo.EasyBuyNews" >
+    insert into EASYBUYNEWS
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="enId != null" >
+        EN_ID,
+      </if>
+      <if test="enTitle != null" >
+        EN_TITLE,
+      </if>
+      <if test="enContent != null" >
+        EN_CONTENT,
+      </if>
+      <if test="enCreateTime != null" >
+        EN_CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="enId != null" >
+        #{enId,jdbcType=DECIMAL},
+      </if>
+      <if test="enTitle != null" >
+        #{enTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="enContent != null" >
+        #{enContent,jdbcType=VARCHAR},
+      </if>
+      <if test="enCreateTime != null" >
+        #{enCreateTime,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="easybuy.pojo.EasyBuyNews" >
+    update EASYBUYNEWS
+    <set >
+      <if test="enTitle != null" >
+        EN_TITLE = #{enTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="enContent != null" >
+        EN_CONTENT = #{enContent,jdbcType=VARCHAR},
+      </if>
+      <if test="enCreateTime != null" >
+        EN_CREATE_TIME = #{enCreateTime,jdbcType=DATE},
+      </if>
+    </set>
+    where EN_ID = #{enId,jdbcType=DECIMAL}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="easybuy.pojo.EasyBuyNews" >
+    update EASYBUYNEWS
+    set EN_TITLE = #{enTitle,jdbcType=VARCHAR},
+      EN_CONTENT = #{enContent,jdbcType=VARCHAR},
+      EN_CREATE_TIME = #{enCreateTime,jdbcType=DATE}
+    where EN_ID = #{enId,jdbcType=DECIMAL}
+  </update>
+</mapper>

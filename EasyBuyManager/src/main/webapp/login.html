@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>login.html</title>
+	
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>易买购 - 首页</title>
+    <script type="text/javascript" src="/EasyBuyManager/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/EasyBuyManager/js/layer/layer.js"></script>
+    <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/layer.css" />
+    <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/style.css" />
+   <script type="text/javascript" src="/EasyBuyManager/scripts/function.js"></script>
+  </head>
+  
+ <body>
+
+
+<div id="register" class="wrap">
+	<div class="shadow">
+		<em class="corner lb"></em>
+		<em class="corner rt"></em>
+		<div class="box">
+			<h1>欢迎登录易购网管理后台</h1>
+			<form id="loginForm" method="post" action="/EasyBuy/user/login.html" >
+				<table>
+					<tr>
+						<td class="field">用户名：</td>
+						<td><input class="text" type="text" name="userName" id="userName" onkeyup="value=value.replace(/[\W]/g,'') " onchange="value=value.replace(/[\W]/g,'') "  /><span></span></td>
+					</tr>
+					<tr>
+						<td class="field">登录密码：</td>
+						<td><input class="text" type="password" id="password" name="password" /><span></span></td>
+					</tr>
+					<tr>
+						<td class="field">验证码：</td>
+						<td><input class="text verycode" type="text" id="code" name="veryCode"  /><img id="veryCode" src="/EasyBuyManager/identifyingCode/load.html" /><span></span></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><label class="ui-green"><input type="button" name="login" onclick="formSubmit()" value="立即登录" /></label></td>
+					</tr>
+					<tr>
+					 <td><input type="hidden" name = "url" value = "/main/welcome.html" /></td>
+				    </tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="footer">
+	Copyright &copy; 2010 北大青鸟 All Rights Reserved. 京ICP证1000001号
+</div>
+<script>
+function formSubmit(){
+	var userName = $("#userName"),
+		password = $("#password"),
+		code = $("#code"),
+		userNameVal = $.trim(userName.val()),
+		passwordVal = $.trim(password.val()),
+		codeVal = $.trim(code.val());
+		
+	if(!userNameVal){
+		layer.tips("用户名不能为空！",userName);
+		userName.focus();
+		return false;
+	}
+	if(!passwordVal){
+		layer.tips("密码不能为空！",password);
+		password.focus();
+		return false;
+	}
+	if(!codeVal){
+		layer.tips("验证码不能为空！",code);
+		code.focus();
+		return false;
+	}
+	if(codeVal){
+		if(codeVal.length<4){
+			layer.tips("验证码长度不匹配！",code);
+			code.focus();
+			return false;
+		}
+	}
+		$.ajax({
+			type : "post",
+			url : "/EasyBuyManager/user/match.html",
+			data : {
+				userName : userNameVal,
+				password : passwordVal,
+				code:codeVal
+			},
+			success : function(result) { 
+				 if(result=="0"){
+					layer.tips("验证码输入错误！",code);
+					code.focus();
+					updateIdentifyingCode();
+					return false;
+				}
+				else if(result=="2"){
+				    layer.tips("用户不存在！",userName);
+					userName.focus();
+					updateIdentifyingCode();
+					return false;
+				}
+				else if(result=="3"){
+				    layer.tips("用户名密码不匹配！",userName);
+					userName.focus();
+					updateIdentifyingCode();
+					return false;
+				}
+				else if(result=="4"){
+				    layer.tips("您的帐户没有管理员权限！",userName);
+					userName.focus();
+					updateIdentifyingCode();
+					return false;
+				}
+				else if(result=="1"){
+				var index = layer.load(1, {
+                    shade: [0.1,'#fff'] //0.1透明度的白色背景
+                    });
+					login (userNameVal,passwordVal,codeVal);
+				}
+			},
+			error : function(result) {
+				layer.alert("数据读取失败,请刷新重试！");
+			}
+		});							
+}
+$(function() {
+	$("#veryCode").click(function() {
+		var c = $("#veryCode")[0];
+		$("#veryCode").attr("src",c.src+"?t="+new Date().getTime());
+		$('#code').val('');
+	});
+});
+function login (userNameVal,passwordVal,codeVal){
+$.ajax({
+			type : "post",
+			url : "/EasyBuyManager/user/login",
+			data : {
+				userName : userNameVal,
+				password : passwordVal,
+				code:codeVal
+			},
+			success : function(result) { 
+			   if(result != null){
+			   window.location.href="/EasyBuyManager/manage/index.html";
+			   }
+			},
+			error : function(result) {
+				layer.alert("数据读取失败,请刷新重试！");
+			}
+		});						
+}
+function updateIdentifyingCode(){
+	document.getElementById("veryCode").click();
+}
+</script>
+</body>
+</html>

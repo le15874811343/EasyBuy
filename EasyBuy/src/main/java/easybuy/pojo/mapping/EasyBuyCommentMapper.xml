@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.com.pojo.mapping.EasyBuyCommentMapper" >
+  <resultMap id="BaseResultMap" type="easybuy.pojo.EasyBuyComment" >
+    <id column="EC_ID" property="ecId" jdbcType="DECIMAL" />
+    <result column="EC_REPLY" property="ecReply" jdbcType="VARCHAR" />
+    <result column="EC_CONTENT" property="ecContent" jdbcType="VARCHAR" />
+    <result column="EC_CREATE_TIME" property="ecCreateTime" jdbcType="DATE" />
+    <result column="EC_REPLY_TIME" property="ecReplyTime" jdbcType="DATE" />
+    <result column="EC_NICK_TIME" property="ecNickTime" jdbcType="VARCHAR" />
+  </resultMap>
+  <!-- 查询模块start -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+         EC_ID,
+         EC_REPLY,
+         EC_CONTENT, 
+         EC_CREATE_TIME, 
+         EC_REPLY_TIME, 
+         EC_NICK_TIME
+    from 
+        EASYBUYCOMMENT
+    where
+        EC_ID = #{ecId,jdbcType=DECIMAL}
+  </select>
+  <select id="listByDate" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  select 
+         EC_ID,
+         EC_REPLY,
+         EC_CONTENT, 
+         to_char(EC_CREATE_TIME,'yyyy-mm-dd hh24:mi:ss') as EC_CREATE_TIME, 
+         EC_REPLY_TIME, 
+         EC_NICK_TIME
+  from
+   (
+   select 
+         EC_ID,
+         EC_REPLY,
+         EC_CONTENT, 
+         EC_CREATE_TIME, 
+         EC_REPLY_TIME, 
+         EC_NICK_TIME
+    from 
+        EASYBUYCOMMENT
+    where 
+         EC_REPLY != '有新回复屏蔽' or EC_REPLY is null
+    order by
+         EC_CREATE_TIME desc
+   )
+  where
+    rownum &lt; #{maxRows,jdbcType=DECIMAL}
+  </select>
+  <select id="count" resultType="java.lang.Long" >
+  select 
+   count(1)
+   from
+   EASYBUYCOMMENT
+  </select>
+  <!-- 查询模块end -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from EASYBUYCOMMENT
+    where EC_ID = #{ecId,jdbcType=DECIMAL}
+  </delete>
+  <insert id="insert" parameterType="easybuy.pojo.EasyBuyComment" >
+    insert into EASYBUYCOMMENT (EC_ID, EC_REPLY, EC_CONTENT, 
+      EC_CREATE_TIME, EC_REPLY_TIME, EC_NICK_TIME
+      )
+    values (#{ecId,jdbcType=DECIMAL}, #{ecReply,jdbcType=VARCHAR}, #{ecContent,jdbcType=VARCHAR}, 
+      #{ecCreateTime,jdbcType=DATE}, #{ecReplyTime,jdbcType=DATE}, #{ecNickTime,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="easybuy.pojo.EasyBuyComment" >
+    insert into EASYBUYCOMMENT
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+   
+        EC_ID,
+     
+      <if test="ecReply != null" >
+        EC_REPLY,
+      </if>
+      <if test="ecContent != null" >
+        EC_CONTENT,
+      </if>
+      <if test="ecCreateTime != null" >
+        EC_CREATE_TIME,
+      </if>
+      <if test="ecReplyTime != null" >
+        EC_REPLY_TIME,
+      </if>
+      <if test="ecNickTime != null" >
+        EC_NICK_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+
+       SEQ_EPCOMMENT.nextval,
+      
+      <if test="ecReply != null" >
+        #{ecReply,jdbcType=VARCHAR},
+      </if>
+      <if test="ecContent != null" >
+        #{ecContent,jdbcType=VARCHAR},
+      </if>
+      <if test="ecCreateTime != null" >
+       to_date(#{ecCreateTime},'yyyy-mm-dd HH24:mi:ss'),
+      </if>
+      <if test="ecReplyTime != null" >
+       to_date(#{ecReplyTime},'yyyy-mm-dd HH24:mi:ss'),
+      </if>
+      <if test="ecNickTime != null" >
+        #{ecNickTime,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="easybuy.pojo.EasyBuyComment" >
+    update EASYBUYCOMMENT
+    <set >
+      <if test="ecReply != null" >
+        EC_REPLY = #{ecReply,jdbcType=VARCHAR},
+      </if>
+      <if test="ecContent != null" >
+        EC_CONTENT = #{ecContent,jdbcType=VARCHAR},
+      </if>
+      <if test="ecCreateTime != null" >
+        EC_CREATE_TIME = #{ecCreateTime,jdbcType=DATE},
+      </if>
+      <if test="ecReplyTime != null" >
+        EC_REPLY_TIME = #{ecReplyTime,jdbcType=DATE},
+      </if>
+      <if test="ecNickTime != null" >
+        EC_NICK_TIME = #{ecNickTime,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where EC_ID = #{ecId,jdbcType=DECIMAL}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="easybuy.pojo.EasyBuyComment" >
+    update EASYBUYCOMMENT
+    set EC_REPLY = #{ecReply,jdbcType=VARCHAR},
+      EC_CONTENT = #{ecContent,jdbcType=VARCHAR},
+      EC_CREATE_TIME = #{ecCreateTime,jdbcType=DATE},
+      EC_REPLY_TIME = #{ecReplyTime,jdbcType=DATE},
+      EC_NICK_TIME = #{ecNickTime,jdbcType=VARCHAR}
+    where EC_ID = #{ecId,jdbcType=DECIMAL}
+  </update>
+</mapper>

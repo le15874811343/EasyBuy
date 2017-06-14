@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>后台管理 - 易买网</title>
+ <script type="text/javascript" src="/EasyBuyManager/js/jquery.min.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/common.js"></script>
+ <script type="text/javascript" src="/EasyBuyManager/js/layer/layer.js"></script>
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/layer.css" />
+ <link type="text/css" rel="stylesheet" href="/EasyBuyManager/css/style.css" />
+ <script type="text/javascript" src="/EasyBuyManager/scripts/function.js"></script>
+</head>
+<body>
+<div id="header" class="wrap">
+	<div id="logo"><img src="../images/logo.gif" /></div>
+	<div class="navbar">
+		<ul class="clearfix">
+			<li><a href="index.html">首页</a></li>
+			<li><a href="user.html">用户</a></li>
+			<li><a href="product.html">商品</a></li>
+			<li><a href="order.html">订单</a></li>
+			<li><a href="guestbook.html">留言</a></li>
+			<li class="current"><a href="news.html">新闻</a></li>
+		</ul>
+	</div>
+</div>
+<div id="childNav">
+	<div class="welcome wrap" id="welcome">
+	</div>
+</div>
+<div id="position" class="wrap">
+	您现在的位置：<a href="index.html">易买网</a> &gt; 管理后台
+</div>
+<div id="main" class="wrap">
+	<div id="menu-mng" class="lefter">
+		<div class="box">
+			<dl>
+				<dt>用户管理</dt>
+				<dd><em><a href="user-add.html">新增</a></em><a href="user.html">用户管理</a></dd>
+				<dt>商品信息</dt>
+				<dd><em><a href="productClass-add.html">新增</a></em><a href="productClass.html">分类管理</a></dd>
+				<dd><em><a href="product-add.html">新增</a></em><a href="product.html">商品管理</a></dd>
+				<dt>订单管理</dt>
+				<dd><a href="order.html">订单管理</a></dd>
+				<dt>留言管理</dt>
+				<dd><a href="guestbook.html">留言管理</a></dd>
+				<dt>新闻管理</dt>
+				<dd><em><a href="news-add.html">新增</a></em><a href="news.html">新闻管理</a></dd>
+			</dl>
+		</div>
+	</div>
+	<div class="main">
+		<h2>修改新闻</h2>
+		<div class="manage">
+			<form action="manage-result.html">
+				<table id="view" class="form">
+				
+				</table>
+			</form>
+		</div>
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="footer">
+	Copyright &copy; 2010 北大青鸟 All Rights Reserved. 京ICP证1000001号
+</div>
+<script >
+ loadCommon();
+function load(){
+   var params = GetRequest();
+   var enId = typeof(params["enId"])=="undefined" ? "" : params["enId"];
+   if(enId==null||$.trim(enId)==""){
+     window.location.href="/EasyBuyManager/manage/news.html?targetPage=1";
+     return false;
+   }
+     $.ajax({
+			type : "post",
+			url : "/EasyBuyManager/news/modifyView",
+			async: false ,
+			data : {
+				enId : enId,
+			},
+			success : function(result) {
+			if(result!=null){
+			  var html="<tr><td class='field'>新闻标题：</td><td><input id='enTitle' type='text' class='text' name='title' value='"+result.enTitle+"' /></td></tr>"
+			      html+="<tr><td class='field'>新闻类型:</td><td><select id='enType'>"
+			      if(result.enType=="0"){
+			      html+="<option value='0' selected='selected'>活动</option><option value='1'>新闻</option>";
+			      }else{
+			       html+="<option value='0' >活动</option><option value='1' selected='selected'>新闻</option>";
+			      }
+			      html+="</select></td></tr>";
+			      html+="<tr><td class='field'>新闻内容：</td><td><textarea id='enContent' name='content'>"+result.enContent+"</textarea></td></tr>";
+			      html+="<tr><td></td><td><label class='ui-blue'><input type='button'onclick='formSubmit("+result.enId+")' name='modify' value='修改' /></label></td></tr>"
+			   $("#view").html(html);
+			   }
+			   else{
+			    window.location.href="/EasyBuyManager/manage/news.html?targetPage=1";
+			   }
+			},
+			error : function(result) {
+				layer.alert("数据读取错误");
+			}
+		});	
+}
+function formSubmit(enId){
+	var enTitle = $("#enTitle"),
+	    enType = $("#enType"),
+	    enContent = $("#enContent"),
+	    enTitleVal =  $.trim(enTitle.val()),
+		enTypeVal =  $.trim(enType.val()),
+		enContentVal  = $.trim(enContent.val());
+	
+	if(!enTitleVal){
+		layer.tips("新闻标题不能为空！",enTitle);
+		enTitle.focus();
+		return false;
+	}
+	if(enTypeVal==""){
+		layer.tips("请选择新闻类型！",enType);
+		enType.focus();
+		return false;
+	}
+	if(!enContentVal){
+		layer.tips("新闻内容不能为空！",enContent);
+		enContent.focus();
+		return false;
+	}
+	$.ajax({
+			type : "post",
+			url : "/EasyBuyManager/news/modify",
+			data : {
+				enTitle : enTitleVal,
+				enType : enTypeVal,
+				enContent : enContentVal,
+				enId : enId,
+			},
+			success : function(result) { 
+				if(result== "1"){
+				layer.alert("修改成功");
+				load(); 
+				}
+			},
+			error : function(result) {
+				layer.alert("数据读取失败,请刷新重试！");
+			}
+		});			
+}
+load(); 
+</script>
+</body>
+</html>
